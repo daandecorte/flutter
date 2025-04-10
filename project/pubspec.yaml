@@ -30,7 +30,9 @@ environment:
 dependencies:
   firebase_core: ^2.25.0
   firebase_auth: ^4.17.4
-
+  cloud_firestore: ^4.13.2
+  firebase_storage: ^11.6.6
+  file_picker: ^6.1.1
   flutter:
     sdk: flutter
 

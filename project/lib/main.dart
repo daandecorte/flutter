@@ -1,6 +1,9 @@
-import 'package:flutter/material.dart';
-import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_core/firebase_core.dart';
+import 'package:flutter/material.dart';
+import 'package:project/screens/add-device-screen.dart';
+import 'package:project/screens/auth-screen.dart';
+
 
 
 void main() async {
@@ -25,70 +28,27 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       title: 'Flutter Project',
-      home: AuthScreen(),
+      home: AuthWrapper(),
     );
   }
 }
 
-class AuthScreen extends StatefulWidget {
-  const AuthScreen({super.key});
-
-  @override
-  State<AuthScreen> createState() => _AuthScreenState();
-}
-
-class _AuthScreenState extends State<AuthScreen> {
-  final emailController = TextEditingController();
-  final passwordController = TextEditingController();
-
-  Future<void> signUp() async {
-    try {
-      await FirebaseAuth.instance.createUserWithEmailAndPassword(
-        email: emailController.text.trim(),
-        password: passwordController.text.trim(),
-      );
-      print("User registered!");
-    } catch (e) {
-      print("Registration error: $e");
-    }
-  }
-
-  Future<void> signIn() async {
-    try {
-      await FirebaseAuth.instance.signInWithEmailAndPassword(
-        email: emailController.text.trim(),
-        password: passwordController.text.trim(),
-      );
-      print("User logged in!");
-    } catch (e) {
-      print("Login error: $e");
-    }
-  }
-
+class AuthWrapper extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(title: const Text("Login/Register")),
-      body: Padding(
-        padding: const EdgeInsets.only(top: 200, left: 200, right: 200),
-        child: Column(
-          children: [
-            TextField(controller: emailController, decoration: const InputDecoration(labelText: "Email")),
-            TextField(controller: passwordController, obscureText: true, decoration: const InputDecoration(labelText: "Password")),
-            const SizedBox(height: 20),
-            Row
-            (
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: 
-              [
-                ElevatedButton(onPressed: signUp, child: const Text("Register")),
-                const SizedBox(width: 16),
-                ElevatedButton(onPressed: signIn, child: const Text("Login")),
-              ]
-            )
-          ],
-        ),
-      ),
+    return StreamBuilder<User?>(
+      stream: FirebaseAuth.instance.authStateChanges(),
+      builder: (context, snapshot) {
+        if (snapshot.connectionState == ConnectionState.waiting) {
+          return const CircularProgressIndicator();
+        }
+        
+        if (snapshot.hasData) {
+          return AddDevice();
+        }
+        
+        return AuthScreen();
+      },
     );
   }
 }
