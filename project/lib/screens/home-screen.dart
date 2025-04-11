@@ -105,39 +105,52 @@ class _HomeScreenState extends State<HomeScreen> {
                 ]
 
             ),
-
             const SizedBox(height: 16),
             if (isLoading)
               const Center(child: CircularProgressIndicator())
             else
               Expanded(
-                child: LayoutBuilder(
-                  builder: (context, constraints) {
-                    if (constraints.maxWidth > 600) { //pc
-                      return GridView.builder(
-                        shrinkWrap: true,
-                        gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                          crossAxisCount: 3,
-                          childAspectRatio: 1,
-                          crossAxisSpacing: 16.0,
-                          mainAxisSpacing: 16.0,
+                child: SingleChildScrollView(
+                  child: Wrap(
+                    spacing: 16.0,
+                    runSpacing: 16.0,
+                    children: userDevices.map((device) {
+                      return Card(
+                        margin: const EdgeInsets.symmetric(vertical: 10),
+                        child: Container(
+                          width: 400,
+                          padding: const EdgeInsets.all(8.0),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.center,
+                            children: [
+                              device['image'] != null
+                                  ? Image.memory(
+                                      base64Decode(device['image']),
+                                      height: 200,
+                                    )
+                                  : Container(
+                                      height: 200,
+                                      color: Colors.grey[300],
+                                    ),
+                              const SizedBox(height: 8),
+                              Text(
+                                device['name'],
+                                style: const TextStyle(
+                                  fontSize: 18,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                              const SizedBox(height: 4),
+                              Text(
+                                device['category'],
+                                style: const TextStyle(fontSize: 14, color: Colors.grey),
+                              ),
+                            ],
+                          ),
                         ),
-                        itemCount: userDevices.length,
-                        itemBuilder: (context, index) {
-                          final device = userDevices[index];
-                          return _buildDeviceCard(device);
-                        },
                       );
-                    } else { //gsm
-                      return ListView.builder(
-                        itemCount: userDevices.length,
-                        itemBuilder: (context, index) {
-                          final device = userDevices[index];
-                          return _buildDeviceCard(device);
-                        },
-                      );
-                    }
-                  },
+                    }).toList(),
+                  ),
                 ),
               ),
           ],
