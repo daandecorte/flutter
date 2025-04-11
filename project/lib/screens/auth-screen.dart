@@ -1,5 +1,6 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:project/screens/home-screen.dart';
 
 class AuthScreen extends StatefulWidget {
   const AuthScreen({super.key});
@@ -19,6 +20,10 @@ class _AuthScreenState extends State<AuthScreen> {
         password: passwordController.text.trim(),
       );
       print("User registered!");
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(builder: (context) => const HomeScreen()),
+      );
     } catch (e) {
       print("Registration error: $e");
     }
@@ -31,6 +36,10 @@ class _AuthScreenState extends State<AuthScreen> {
         password: passwordController.text.trim(),
       );
       print("User logged in!");
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(builder: (context) => const HomeScreen()),
+      );
     } catch (e) {
       print("Login error: $e");
     }

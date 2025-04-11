@@ -3,6 +3,7 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:project/screens/add-device-screen.dart';
 import 'package:project/screens/auth-screen.dart';
+import 'package:project/screens/home-screen.dart';
 
 
 
@@ -27,6 +28,7 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
+      debugShowCheckedModeBanner: false,
       title: 'Flutter Project',
       home: AuthWrapper(),
     );
@@ -44,7 +46,7 @@ class AuthWrapper extends StatelessWidget {
         }
         
         if (snapshot.hasData) {
-          return AddDevice();
+          return HomeScreen();
         }
         
         return AuthScreen();
