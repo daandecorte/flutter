@@ -26,6 +26,9 @@ class _AuthScreenState extends State<AuthScreen> {
       );
     } catch (e) {
       print("Registration error: $e");
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Er ging iets mis. Kijk je gegevens na!')),
+      );
     }
   }
 
@@ -42,6 +45,9 @@ class _AuthScreenState extends State<AuthScreen> {
       );
     } catch (e) {
       print("Login error: $e");
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Er ging iets mis. Kijk je gegevens na!')),
+      );
     }
   }
 
