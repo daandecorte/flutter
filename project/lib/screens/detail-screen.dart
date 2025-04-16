@@ -15,9 +15,8 @@ class DeviceDetailScreen extends StatelessWidget {
         child: Row(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-GestureDetector(
+            GestureDetector(
                 onTap: () {
-                  // Navigate to full-screen image view
                   Navigator.push(
                     context,
                     MaterialPageRoute(
@@ -28,11 +27,11 @@ GestureDetector(
                   );
                 },
                 child: Hero(
-                  tag: device['name'], // Unique tag for hero transition
+                  tag: device['name'],
                   child: Image.memory(
                     base64Decode(device['image']),
                     fit: BoxFit.cover,
-                    width: 600,  // Control size on device detail page
+                    width: 600,
                     height: double.infinity,
                   ),
                 ),

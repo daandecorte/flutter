@@ -4,6 +4,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:project/screens/add-device-screen.dart';
+import 'package:project/screens/detail-screen.dart';
 
 class ProfileScreen extends StatefulWidget {
   const ProfileScreen({super.key});
@@ -86,13 +87,23 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 if (userDevices.isEmpty) {
                   return const Center(child: CircularProgressIndicator());
                 }
-                return Card(
-                  margin: const EdgeInsets.symmetric(vertical: 10),
-                  child: ListTile(
-                    title: Text(device['name']),
-                    subtitle: Text(device['category']),
-                    leading: device['image'] != null ? Image.memory(base64Decode(device['image'])) : null,
-                  ),
+                return GestureDetector(
+                  onTap: () {
+                    Navigator.push(
+                      context, 
+                      MaterialPageRoute(
+                        builder: (context) => DeviceDetailScreen(device: device)
+                      )
+                    );
+                  },
+                  child: Card(
+                    margin: const EdgeInsets.symmetric(vertical: 10),
+                    child: ListTile(
+                      title: Text(device['name']),
+                      subtitle: Text(device['category']),
+                      trailing: device['image'] != null ? Image.memory(base64Decode(device['image'])) : null,
+                    ),
+                  )
                 );
               }))
 
