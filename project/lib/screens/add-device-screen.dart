@@ -23,7 +23,11 @@ class AddDeviceState extends State<AddDevice> {
   final priceController = TextEditingController();
   String selectedCategory = 'Keuken';
   Uint8List? selectedImage;
-
+Future<void> changeCategory(String category) async {
+  setState(() {
+    selectedCategory=category;  
+  });
+}
 Future<void> pickImage() async {
   final result = await FilePicker.platform.pickFiles(
     type: FileType.image,
@@ -39,7 +43,23 @@ Future<void> pickImage() async {
   }
 }
   Future<void> uploadDevice() async {
-    if(selectedImage==null) return;
+    if (nameController.text.trim().isEmpty ||
+      descriptionController.text.trim().isEmpty ||
+      priceController.text.trim().isEmpty ||
+      selectedImage == null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Vul alle velden in en kies een afbeelding')),
+      );
+      return;
+    }
+    double? price = double.tryParse(priceController.text.trim());
+    if (price == null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(content: Text('Geef een geldige prijs op')),
+    );
+      return;
+    }
+    try {
     final storageRef = FirebaseStorage.instance.ref('devices/${DateTime.now().millisecondsSinceEpoch}.jpg');
     final base64Image = base64Encode(selectedImage!);
 
@@ -49,7 +69,7 @@ Future<void> pickImage() async {
       return;
     }
 
-    final userId = user.uid; // Get the UID of the logged-in user
+    final userId = user.uid;
 
     final device = Device(
       id: '',
@@ -62,7 +82,16 @@ Future<void> pickImage() async {
     );
 
     await FirebaseFirestore.instance.collection('devices').add(device.toMap());
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(content: Text('Toestel toegevoegd!')),
+    );
     Navigator.pop(context);
+    } catch (e) {
+    print("Upload error: $e");
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(content: Text('Er is iets misgegaan bij het uploaden')),
+    );
+    }
   }
 
   @override 
@@ -75,7 +104,7 @@ Future<void> pickImage() async {
           children: [
             TextField(controller: nameController, decoration: const InputDecoration(labelText: "Naam van het product")),
             TextField(controller: descriptionController,decoration: const InputDecoration(labelText: "Beschrijving")),
-            TextField(controller: priceController,decoration: const InputDecoration(labelText: "Prijs")),
+            TextField(controller: priceController,decoration: const InputDecoration(labelText: "Prijs in €")),
             const SizedBox(height: 16),
             Row(
               mainAxisAlignment: MainAxisAlignment.start,
@@ -88,7 +117,7 @@ Future<void> pickImage() async {
                 const SizedBox(width: 16),
                 DropdownButton(
                   value: selectedCategory, 
-                  onChanged: (value) => selectedCategory=value!, 
+                  onChanged: (value) => changeCategory(value!), 
                   items: [
                     DropdownMenuItem(value: "Keuken", child: Text("Keuken")),
                     DropdownMenuItem(value: "Poetsen", child: Text("Poetsen")),
@@ -97,7 +126,15 @@ Future<void> pickImage() async {
                 ),
               ]
             ),
-
+            if (selectedImage != null)
+              Padding(
+                padding: const EdgeInsets.symmetric(vertical: 8.0),
+                child: Image.memory(
+                  selectedImage!,
+                  height: 200,
+                  fit: BoxFit.contain,
+                ),
+              ),
             const SizedBox(height: 8),
             ElevatedButton.icon(onPressed: pickImage, label: const Text("kies afbeelding"), icon: const Icon(Icons.image),),
             const SizedBox(height: 8),
