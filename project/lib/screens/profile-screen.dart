@@ -4,6 +4,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:project/screens/add-device-screen.dart';
+import 'package:project/screens/auth-screen.dart';
 import 'package:project/screens/detail-screen.dart';
 
 class ProfileScreen extends StatefulWidget {
@@ -72,7 +73,10 @@ class _ProfileScreenState extends State<ProfileScreen> {
             ElevatedButton.icon(
               onPressed: () async {
                 await FirebaseAuth.instance.signOut();
-                Navigator.of(context).popUntil((route) => route.isFirst);
+                Navigator.of(context).pushAndRemoveUntil(
+                  MaterialPageRoute(builder: (context) => AuthScreen()),
+                  (route) => false
+                );
               },
               icon: const Icon(Icons.logout),
               label: const Text("Log uit"),
