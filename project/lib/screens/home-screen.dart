@@ -9,6 +9,8 @@ import 'package:project/screens/detail-screen.dart';
 import 'package:project/screens/device-map-screen.dart';
 import 'package:project/screens/map-screen.dart';
 import 'package:project/screens/profile-screen.dart';
+import 'package:http/http.dart' as http;
+import 'dart:convert' as convert;
 
 class HomeScreen extends StatefulWidget {
     const HomeScreen({super.key});
@@ -23,6 +25,7 @@ class _HomeScreenState extends State<HomeScreen> {
     bool isLoading = true;
     String filter = "Alle";
     LatLng? selectedLocation;
+    bool sortByDistance = false;
 
 Future<void> getFilteredDevices() async {
   if (!mounted) return;
@@ -49,7 +52,7 @@ Future<void> getFilteredDevices() async {
       return doc.data() as Map<String, dynamic>;
     }).toList();
 
-    if (selectedLocation != null) {
+    if (selectedLocation != null && sortByDistance) {
       devices.sort((a, b) {
         double distanceA = calculateDistance(
           selectedLocation!.latitude, 
@@ -93,11 +96,24 @@ void changeFilter(newFilter) {
     var distance = Distance();
     return distance.as(LengthUnit.Kilometer, LatLng(lat1, lon1), LatLng(lat2, lon2));
   }
-@override
-void initState() {
-  super.initState();
-  getFilteredDevices(); 
-}
+  Future<String> getLocationString(lat, long) async {
+  var urlString =
+  'https://nominatim.openstreetmap.org/reverse?lat=${lat}&lon=${long}&format=json';
+
+  final dataUrl = Uri.parse(urlString);
+  final response = await http.get(dataUrl);
+    if (response.statusCode == 200) {
+      final jsonResponse = convert.jsonDecode(response.body);
+      return "${jsonResponse['address']['village'] ?? ''}${jsonResponse['address']['city'] ?? ''} ${jsonResponse['address']['postcode'] ?? ''} ${jsonResponse['address']['country'] ?? ''}";
+    } else {
+      return 'Error getting location';
+    }
+  }
+  @override
+  void initState() {
+    super.initState();
+    getFilteredDevices(); 
+  }
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -138,10 +154,8 @@ void initState() {
                         DropdownMenuItem(value: "Tuin", child: Text("Tuin")),
                     ],
                     ),
-                    const Text("Search On Map: ", style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold)),
-                    IconButton(
-                      icon: const Icon(Icons.map),
-                      iconSize: 30,
+                    const SizedBox(width: 10,),
+                    ElevatedButton.icon(
                       onPressed: () async {
                         final result = await Navigator.push<Map<String, dynamic>>(
                           context,
@@ -151,11 +165,54 @@ void initState() {
                         if (result != null) {
                           setState(() {
                             selectedLocation = result['location'] as LatLng;
-                            getFilteredDevices();
                           });
+                          getFilteredDevices();
                         }
                       },
-                    )
+                      icon: const Icon(Icons.map, size: 30),
+                      label: const Text(
+                        "Selecteer uw locatie",
+                        style: TextStyle(
+                          fontSize: 15,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.black,
+                        ),
+                      ),
+                      style: TextButton.styleFrom(
+                        foregroundColor: Colors.black,
+                        padding: const EdgeInsets.symmetric(horizontal: 8.0, vertical: 8.0),
+                      ),
+                    ),
+                  const SizedBox(width: 10),
+                  if (selectedLocation != null)
+                    Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          "Locatie geselecteerd:",
+                          style: const TextStyle(fontSize: 12, fontWeight: FontWeight.bold),
+                        ),
+                        Text(
+                          "Lat: ${selectedLocation!.latitude.toStringAsFixed(4)}, "
+                          "Lng: ${selectedLocation!.longitude.toStringAsFixed(4)}",
+                          style: const TextStyle(fontSize: 12),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(width: 10),
+                    const Text(
+                      "Sorteer op afstand: ",
+                      style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold),
+                    ),
+                    Switch(
+                      value: sortByDistance,
+                      onChanged: (bool value) {
+                        setState(() {
+                          sortByDistance = value;
+                        });
+                        getFilteredDevices(); 
+                      },
+                    ),
                 ]
 
             ),
@@ -211,7 +268,7 @@ void initState() {
                                 const SizedBox(height: 4),
                                 if (selectedLocation != null) 
                                   Text(
-                                    "Distance: ${calculateDistance(
+                                    "Afstand: ${calculateDistance(
                                       selectedLocation?.latitude ?? 0,
                                       selectedLocation?.longitude ?? 0,
                                       device['lat'],
@@ -219,9 +276,17 @@ void initState() {
                                     ).toStringAsFixed(2)} km",
                                   )
                                 else 
-                                  Text(
-                                    "Lat: ${device['lat']}, Long: ${device['long']}",
-                                  ),
+                                  FutureBuilder<String>(
+                                    future: getLocationString(device['lat'], device['long']), 
+                                    builder: (context, snapshot) {
+                                      if(snapshot.data!=null) {
+                                        return Text("Locatie: ${snapshot.data}");
+                                      }
+                                      else {
+                                        return Text("Locatie: ${device['lat']}, ${device['long']}");
+                                      }                                    
+                                    }
+                                  )
                               ],
                             ),
                           ),

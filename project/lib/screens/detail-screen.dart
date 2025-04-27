@@ -16,7 +16,6 @@ class DeviceDetailScreen extends StatelessWidget {
       final response = await http.get(dataUrl);
       if (response.statusCode == 200) {
         final jsonResponse = convert.jsonDecode(response.body);
-        print(jsonResponse);
         return jsonResponse['display_name'];
       } else {
         return 'Error getting location';

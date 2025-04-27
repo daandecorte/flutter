@@ -14,7 +14,7 @@ class MapScreen extends StatefulWidget {
 class MapState extends State<MapScreen> {
   final MapController _mapController = MapController();
   double _currentZoom = 14.0;
-  String _appBarTitle = 'Ellermanstraat 33, 2000 Antwerp';
+  String _appBarTitle = 'Click anywhere or search your location';
   final LatLng _initialCenter = LatLng(51.23016715, 4.4161294643975015);
 
   LatLng? _selectedLocation;
@@ -111,7 +111,7 @@ class MapState extends State<MapScreen> {
   void _findCoords(LatLng coords) async {
     String lat = coords.latitude.toString();
     String long = coords.longitude.toString();
-    var snackText = Text('lat=$lat & lon=$long');
+    var snackText = Text('lat=$lat & long=$long');
 
     ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: snackText));
 
