@@ -140,11 +140,8 @@ Future<void> pickImage() async {
                     DropdownMenuItem(value: "Tuin", child: Text("Tuin"))
                   ]
                 ),
-                const SizedBox(width: 32),
-                Text("Kies locatie op de kaart", style: TextStyle(fontSize: 16)),
-                IconButton(
-                  icon: Icon(Icons.map),
-                  iconSize: 30,
+                const SizedBox(width: 16),
+                ElevatedButton.icon(
                   onPressed: () async {
                     final result = await Navigator.push<Map<String, dynamic>>(
                       context,
@@ -158,7 +155,14 @@ Future<void> pickImage() async {
                       });
                     }
                   },
+                  icon: Icon(Icons.map, size: 30,),
+                  label: Text("Kies locatie op de kaart", style: TextStyle(fontSize: 16)),
+                  style: TextButton.styleFrom(
+                    foregroundColor: Colors.black,
+                    padding: const EdgeInsets.symmetric(horizontal: 8.0, vertical: 8.0),
+                  ),
                 ),
+                const SizedBox(width: 16,),
                 if (selectedLocation != null)
                   Padding(
                     padding: const EdgeInsets.only(top: 8.0),

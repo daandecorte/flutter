@@ -14,7 +14,7 @@ class MapScreen extends StatefulWidget {
 class MapState extends State<MapScreen> {
   final MapController _mapController = MapController();
   double _currentZoom = 14.0;
-  String _appBarTitle = 'Click anywhere or search your location';
+  String _appBarTitle = 'Klik ergens of zoek uw locatie.';
   final LatLng _initialCenter = LatLng(51.23016715, 4.4161294643975015);
 
   LatLng? _selectedLocation;
@@ -120,7 +120,7 @@ class MapState extends State<MapScreen> {
 
     final dataUrl = Uri.parse(urlString);
     final response = await http.get(dataUrl);
-    
+
     if (response.statusCode == 200) {
       final jsonResponse = convert.jsonDecode(response.body);
       setState(() {
