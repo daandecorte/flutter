@@ -120,7 +120,7 @@ class MapState extends State<MapScreen> {
 
     final dataUrl = Uri.parse(urlString);
     final response = await http.get(dataUrl);
-
+    
     if (response.statusCode == 200) {
       final jsonResponse = convert.jsonDecode(response.body);
       setState(() {

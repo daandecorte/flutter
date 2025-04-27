@@ -104,7 +104,8 @@ void changeFilter(newFilter) {
   final response = await http.get(dataUrl);
     if (response.statusCode == 200) {
       final jsonResponse = convert.jsonDecode(response.body);
-      return "${jsonResponse['address']['village'] ?? ''}${jsonResponse['address']['city'] ?? ''} ${jsonResponse['address']['postcode'] ?? ''} ${jsonResponse['address']['country'] ?? ''}";
+      print(jsonResponse['address']);
+      return "${jsonResponse['address']['town'] ?? ''}${jsonResponse['address']['city'] ?? ''} ${jsonResponse['address']['postcode'] ?? ''} ${jsonResponse['address']['country'] ?? ''}";
     } else {
       return 'Error getting location';
     }
@@ -199,20 +200,25 @@ void changeFilter(newFilter) {
                         ),
                       ],
                     ),
-                    const SizedBox(width: 10),
-                    const Text(
-                      "Sorteer op afstand: ",
-                      style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold),
-                    ),
-                    Switch(
-                      value: sortByDistance,
-                      onChanged: (bool value) {
-                        setState(() {
-                          sortByDistance = value;
-                        });
-                        getFilteredDevices(); 
-                      },
-                    ),
+                    if(selectedLocation!=null) 
+                      Row(
+                        children: [
+                        const SizedBox(width: 10),
+                        const Text(
+                          "Sorteer op afstand: ",
+                          style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold),
+                        ),
+                        Switch(
+                          value: sortByDistance,
+                          onChanged: (bool value) {
+                            setState(() {
+                              sortByDistance = value;
+                            });
+                            getFilteredDevices(); 
+                          },
+                        ),
+                        ]
+                      )
                 ]
 
             ),
@@ -254,7 +260,7 @@ void changeFilter(newFilter) {
                                       ),
                                 const SizedBox(height: 8),
                                 Text(
-                                  device['name'],
+                                  "${device['name']} €${device['price']}",
                                   style: const TextStyle(
                                     fontSize: 18,
                                     fontWeight: FontWeight.bold,
