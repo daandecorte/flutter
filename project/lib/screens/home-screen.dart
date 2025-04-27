@@ -3,8 +3,11 @@ import 'dart:convert';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:latlong2/latlong.dart';
 import 'package:project/screens/auth-screen.dart';
 import 'package:project/screens/detail-screen.dart';
+import 'package:project/screens/device-map-screen.dart';
+import 'package:project/screens/map-screen.dart';
 import 'package:project/screens/profile-screen.dart';
 
 class HomeScreen extends StatefulWidget {
@@ -19,53 +22,82 @@ class _HomeScreenState extends State<HomeScreen> {
 
     bool isLoading = true;
     String filter = "Alle";
+    LatLng? selectedLocation;
 
-  Future<void> getFilteredDevices() async {
-    if(!mounted) return;
-    setState(() {
-      isLoading = true;
-    });
-    
-    try {
-        QuerySnapshot querySnapshot;
-        if (filter == "Alle") {
-        querySnapshot = await FirebaseFirestore.instance
-            .collection('devices')
-            .get();
-        } else {
-        querySnapshot = await FirebaseFirestore.instance
-            .collection('devices')
-            .where('category', isEqualTo: filter)
-            .get();
-        }
-    if(!mounted) return;
-    setState(() {
-      userDevices = querySnapshot.docs.map((doc) {
-        return doc.data() as Map<String, dynamic>;
-      }).toList();
+Future<void> getFilteredDevices() async {
+  if (!mounted) return;
+  setState(() {
+    isLoading = true;
+  });
+  
+  try {
+    QuerySnapshot querySnapshot;
+    if (filter == "Alle") {
+      querySnapshot = await FirebaseFirestore.instance
+          .collection('devices')
+          .get();
+    } else {
+      querySnapshot = await FirebaseFirestore.instance
+          .collection('devices')
+          .where('category', isEqualTo: filter)
+          .get();
+    }
 
-      isLoading = false;
-      });
-    } catch (e) {
-      print("Error fetching devices: $e");
-      if(!mounted) return;
-      setState(() {
-        isLoading = false;
+    if (!mounted) return;
+
+    List<Map<String, dynamic>> devices = querySnapshot.docs.map((doc) {
+      return doc.data() as Map<String, dynamic>;
+    }).toList();
+
+    if (selectedLocation != null) {
+      devices.sort((a, b) {
+        double distanceA = calculateDistance(
+          selectedLocation!.latitude, 
+          selectedLocation!.longitude, 
+          a["lat"], 
+          a["long"]
+        );
+        double distanceB = calculateDistance(
+          selectedLocation!.latitude, 
+          selectedLocation!.longitude, 
+          b["lat"], 
+          b["long"]
+        );
+        return distanceA.compareTo(distanceB);
       });
     }
-  }
-  void changeFilter(newFilter) {
+
     setState(() {
-      filter = newFilter;
-      isLoading = true;
+      userDevices = devices;
+      isLoading = false;
     });
-    getFilteredDevices();
+
+  } catch (e) {
+    print("Error fetching devices: $e");
+    if (!mounted) return;
+    setState(() {
+      isLoading = false;
+    });
   }
-    @override
-    void initState() {
-    super.initState();
-    getFilteredDevices();
+}
+
+void changeFilter(newFilter) {
+  setState(() {
+    filter = newFilter;
+    isLoading = true;
+  });
+  getFilteredDevices();
+}
+
+  double calculateDistance(double lat1, double lon1, double lat2, double lon2) {
+    var distance = Distance();
+    return distance.as(LengthUnit.Kilometer, LatLng(lat1, lon1), LatLng(lat2, lon2));
   }
+@override
+void initState() {
+  super.initState();
+  getFilteredDevices(); 
+}
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -106,6 +138,24 @@ class _HomeScreenState extends State<HomeScreen> {
                         DropdownMenuItem(value: "Tuin", child: Text("Tuin")),
                     ],
                     ),
+                    const Text("Search On Map: ", style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold)),
+                    IconButton(
+                      icon: const Icon(Icons.map),
+                      iconSize: 30,
+                      onPressed: () async {
+                        final result = await Navigator.push<Map<String, dynamic>>(
+                          context,
+                          MaterialPageRoute(builder: (context) => const MapScreen()),
+                        );
+                        
+                        if (result != null) {
+                          setState(() {
+                            selectedLocation = result['location'] as LatLng;
+                            getFilteredDevices();
+                          });
+                        }
+                      },
+                    )
                 ]
 
             ),
@@ -158,6 +208,20 @@ class _HomeScreenState extends State<HomeScreen> {
                                   device['category'],
                                   style: const TextStyle(fontSize: 14, color: Colors.grey),
                                 ),
+                                const SizedBox(height: 4),
+                                if (selectedLocation != null) 
+                                  Text(
+                                    "Distance: ${calculateDistance(
+                                      selectedLocation?.latitude ?? 0,
+                                      selectedLocation?.longitude ?? 0,
+                                      device['lat'],
+                                      device['long'],
+                                    ).toStringAsFixed(2)} km",
+                                  )
+                                else 
+                                  Text(
+                                    "Lat: ${device['lat']}, Long: ${device['long']}",
+                                  ),
                               ],
                             ),
                           ),

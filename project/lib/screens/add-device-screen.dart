@@ -6,7 +6,9 @@ import 'package:flutter/material.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:file_picker/file_picker.dart';
+import 'package:latlong2/latlong.dart';
 import 'package:project/models/device.dart';
+import 'package:project/screens/map-screen.dart';
 
 class AddDevice extends StatefulWidget {
   const AddDevice({super.key});
@@ -23,6 +25,9 @@ class AddDeviceState extends State<AddDevice> {
   final priceController = TextEditingController();
   String selectedCategory = 'Keuken';
   Uint8List? selectedImage;
+  LatLng? selectedLocation;
+  String? selectedAddress;
+
 Future<void> changeCategory(String category) async {
   setState(() {
     selectedCategory=category;  
@@ -33,11 +38,18 @@ Future<void> pickImage() async {
     type: FileType.image,
     withData: true,
   );
+  const maxSizeInBytes = 1048576;
 
   if (result != null && result.files.single.bytes != null) {
-    setState(() {
-      selectedImage = result.files.single.bytes;
-    });
+    if(result.files.single.bytes!.length>=maxSizeInBytes) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Deze afbeelding is te groot. Max 1MB')),
+      );
+    }else {
+      setState(() {
+        selectedImage = result.files.single.bytes;
+      });
+    }
   } else {
     print("No image selected.");
   }
@@ -46,9 +58,11 @@ Future<void> pickImage() async {
     if (nameController.text.trim().isEmpty ||
       descriptionController.text.trim().isEmpty ||
       priceController.text.trim().isEmpty ||
-      selectedImage == null) {
+      selectedImage == null || 
+      selectedLocation == null
+      ) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Vul alle velden in en kies een afbeelding')),
+        const SnackBar(content: Text('Vul alle velden in en kies een afbeelding en locatie')),
       );
       return;
     }
@@ -78,7 +92,9 @@ Future<void> pickImage() async {
       price: double.parse(priceController.text.trim()),
       category: selectedCategory,
       image: base64Image,
-      user: userId
+      user: userId,
+      lat: selectedLocation?.latitude ?? 0,
+      long: selectedLocation?.longitude ?? 0
     );
 
     await FirebaseFirestore.instance.collection('devices').add(device.toMap());
@@ -124,6 +140,33 @@ Future<void> pickImage() async {
                     DropdownMenuItem(value: "Tuin", child: Text("Tuin"))
                   ]
                 ),
+                const SizedBox(width: 32),
+                Text("Kies locatie op de kaart", style: TextStyle(fontSize: 16)),
+                IconButton(
+                  icon: Icon(Icons.map),
+                  iconSize: 30,
+                  onPressed: () async {
+                    final result = await Navigator.push<Map<String, dynamic>>(
+                      context,
+                      MaterialPageRoute(builder: (context) => const MapScreen()),
+                    );
+                    
+                    if (result != null) {
+                      setState(() {
+                        selectedLocation = result['location'] as LatLng;
+                        selectedAddress = result['address'] as String;
+                      });
+                    }
+                  },
+                ),
+                if (selectedLocation != null)
+                  Padding(
+                    padding: const EdgeInsets.only(top: 8.0),
+                    child: Text(
+                      'Locatie gekozen: $selectedAddress',
+                      style: TextStyle(fontSize: 14, color: Colors.green),
+                    ),
+                  ),
               ]
             ),
             if (selectedImage != null)

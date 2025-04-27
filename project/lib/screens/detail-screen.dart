@@ -1,10 +1,27 @@
 import 'dart:convert';
 import 'package:flutter/material.dart';
+import 'package:http/http.dart' as http;
+import 'dart:convert' as convert;
 
 class DeviceDetailScreen extends StatelessWidget {
   final Map<String, dynamic> device;
 
   const DeviceDetailScreen({super.key, required this.device});
+
+    Future<String> getLocationString(lat, long) async {
+      var urlString =
+      'https://nominatim.openstreetmap.org/reverse?lat=${lat}&lon=${long}&format=json';
+
+      final dataUrl = Uri.parse(urlString);
+      final response = await http.get(dataUrl);
+      if (response.statusCode == 200) {
+        final jsonResponse = convert.jsonDecode(response.body);
+        print(jsonResponse);
+        return jsonResponse['display_name'];
+      } else {
+        return 'Error getting location';
+      }
+    }
 
   @override
   Widget build(BuildContext context) {
@@ -60,6 +77,13 @@ class DeviceDetailScreen extends StatelessWidget {
                     'Prijs: €${device['price'].toString()}',
                     style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
                   ),
+                  const SizedBox(height: 16),
+                  FutureBuilder<String>(
+                    future: getLocationString(device['lat'], device['long']),
+                    builder: (context, snapshot) {
+                      return Text( "Locatie: ${snapshot.data}", style: const TextStyle(fontSize: 18));
+                    },
+                  )
                 ],
               ),
             )

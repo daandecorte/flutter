@@ -1,3 +1,5 @@
+
+
 class Device {
   final String id;
   final String name;
@@ -6,6 +8,8 @@ class Device {
   final String category;
   final String image;
   final String user;
+  final double lat;
+  final double long;
 
   Device({
     required this.id,
@@ -14,7 +18,9 @@ class Device {
     required this.price,
     required this.category,
     required this.image,
-    required this.user
+    required this.user,
+    required this.lat,
+    required this.long
   });
 
   Map<String, dynamic> toMap() => {
@@ -23,7 +29,9 @@ class Device {
         'price': price,
         'category': category,
         'image': image,
-        'user': user
+        'user': user,
+        'lat': lat,
+        'long': long
       };
 
   factory Device.fromMap(String id, Map<String, dynamic> map) {
@@ -34,7 +42,9 @@ class Device {
       price: (map['price'] as num).toDouble(),
       category: map['category'],
       image: map['image'],
-      user: map['user']
+      user: map['user'],
+      lat: map['lat'],
+      long: map['long']
     );
   }
 }
