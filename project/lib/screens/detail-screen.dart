@@ -3,6 +3,8 @@ import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert' as convert;
 
+import 'package:project/screens/reserve-device-screen.dart';
+
 class DeviceDetailScreen extends StatelessWidget {
   final Map<String, dynamic> device;
 
@@ -82,6 +84,13 @@ class DeviceDetailScreen extends StatelessWidget {
                     builder: (context, snapshot) {
                       return Text( "Locatie: ${snapshot.data}", style: const TextStyle(fontSize: 18));
                     },
+                  ),
+                  const SizedBox(height: 16,),
+                  ElevatedButton(
+                    onPressed: () {
+                      Navigator.push(context, MaterialPageRoute(builder: (context) => ReserveDeviceScreen(device: device,)));
+                    }, 
+                    child: Text("Reserve")
                   )
                 ],
               ),

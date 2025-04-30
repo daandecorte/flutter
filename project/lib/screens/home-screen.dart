@@ -184,6 +184,11 @@ void changeFilter(newFilter) {
                         padding: const EdgeInsets.symmetric(horizontal: 8.0, vertical: 8.0),
                       ),
                     ),
+                    // ElevatedButton(
+                    //   onPressed: (){
+                    //     Navigator.push(context, MaterialPageRoute(builder: (context) => DeviceMapScreen(devices: userDevices)));
+                    //   } ,
+                    //   child: Text("kaart")),
                   const SizedBox(width: 10),
                   if (selectedLocation != null)
                     Column(
