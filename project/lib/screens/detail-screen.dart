@@ -90,7 +90,7 @@ class DeviceDetailScreen extends StatelessWidget {
                     onPressed: () {
                       Navigator.push(context, MaterialPageRoute(builder: (context) => ReserveDeviceScreen(device: device,)));
                     }, 
-                    child: Text("Reserve")
+                    child: Text("Reserveer")
                   )
                 ],
               ),
