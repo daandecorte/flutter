@@ -156,11 +156,7 @@ Future<void> pickImage() async {
                     }
                   },
                   icon: Icon(Icons.map, size: 30,),
-                  label: Text("Kies locatie op de kaart", style: TextStyle(fontSize: 16)),
-                  style: TextButton.styleFrom(
-                    foregroundColor: Colors.black,
-                    padding: const EdgeInsets.symmetric(horizontal: 8.0, vertical: 8.0),
-                  ),
+                  label: Text("Kies locatie op de kaart", style: TextStyle(fontSize: 15)),
                 ),
                 const SizedBox(width: 16,),
                 if (selectedLocation != null)
@@ -183,9 +179,9 @@ Future<void> pickImage() async {
                 ),
               ),
             const SizedBox(height: 8),
-            ElevatedButton.icon(onPressed: pickImage, label: const Text("kies afbeelding"), icon: const Icon(Icons.image),),
+            ElevatedButton.icon(onPressed: pickImage, label: const Text("Kies afbeelding", style: TextStyle(fontSize: 15)), icon: const Icon(Icons.image),),
             const SizedBox(height: 8),
-            ElevatedButton(onPressed: uploadDevice, child: const Text("Toestel toevoegen"))
+            ElevatedButton(onPressed: uploadDevice, child: const Text("Toestel toevoegen", style: TextStyle(fontSize: 15),), )
           ],
         )
       )

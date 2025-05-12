@@ -81,6 +81,20 @@ class _ProfileScreenState extends State<ProfileScreen> {
               icon: const Icon(Icons.logout),
               label: const Text("Log uit"),
             ),
+            const SizedBox(height: 10,),
+            ElevatedButton.icon(
+              label: const Text("Verhuurderbeheer"),
+               onPressed: () =>  {
+
+              },
+            ),
+            const SizedBox(height: 10,),
+            ElevatedButton.icon(
+              label: const Text("Reserveringsbeheer"),
+               onPressed: () =>  {
+
+              },
+            ),
             const SizedBox(height: 40,),
             const Text("Jouw toestellen", style: TextStyle(fontSize: 20),),
             const SizedBox(height: 20,),

@@ -174,17 +174,14 @@ void changeFilter(newFilter) {
                         }
                       },
                       icon: const Icon(Icons.map, size: 30),
+                      style: TextButton.styleFrom(foregroundColor: Colors.black),
                       label: const Text(
                         "Selecteer uw locatie",
                         style: TextStyle(
                           fontSize: 15,
                           fontWeight: FontWeight.bold,
-                          color: Colors.black,
+                          color: Colors.black
                         ),
-                      ),
-                      style: TextButton.styleFrom(
-                        foregroundColor: Colors.black,
-                        padding: const EdgeInsets.symmetric(horizontal: 8.0, vertical: 8.0),
                       ),
                     ),
                     // ElevatedButton(
@@ -199,7 +196,7 @@ void changeFilter(newFilter) {
                       children: [
                         Text(
                           "Locatie geselecteerd:",
-                          style: const TextStyle(fontSize: 12, fontWeight: FontWeight.bold),
+                          style: const TextStyle(fontSize: 12, fontWeight: FontWeight.bold,),
                         ),
                         Text(
                           "Lat: ${selectedLocation!.latitude.toStringAsFixed(4)}, "
