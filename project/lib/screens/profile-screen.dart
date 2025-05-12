@@ -31,7 +31,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
     setState(() {
       userDevices = querySnapshot.docs.map((doc) {
-        return doc.data();
+        final data = doc.data() as Map<String, dynamic>;
+        data['id'] = doc.id;
+        return data;
       }).toList();
     });
   }
@@ -75,59 +77,64 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 await FirebaseAuth.instance.signOut();
                 Navigator.of(context).pushAndRemoveUntil(
                   MaterialPageRoute(builder: (context) => AuthScreen()),
-                  (route) => false
+                  (route) => false,
                 );
               },
               icon: const Icon(Icons.logout),
               label: const Text("Log uit"),
             ),
-            const SizedBox(height: 10,),
+            const SizedBox(height: 10),
             ElevatedButton.icon(
+              onPressed: () {
+                // TODO: Add verhuurderbeheer logic
+              },
+              icon: const Icon(Icons.manage_accounts),
               label: const Text("Verhuurderbeheer"),
-               onPressed: () =>  {
-
-              },
             ),
-            const SizedBox(height: 10,),
+            const SizedBox(height: 10),
             ElevatedButton.icon(
-              label: const Text("Reserveringsbeheer"),
-               onPressed: () =>  {
-
+              onPressed: () {
+                // TODO: Add reserveringsbeheer logic
               },
+              icon: const Icon(Icons.calendar_today),
+              label: const Text("Reserveringsbeheer"),
             ),
-            const SizedBox(height: 40,),
-            const Text("Jouw toestellen", style: TextStyle(fontSize: 20),),
-            const SizedBox(height: 20,),
-            Expanded(child: ListView.builder(
-              itemCount: userDevices.length,
-              itemBuilder: (context, index) {
-                final device = userDevices[index];
-                if (userDevices.isEmpty) {
-                  return const Center(child: CircularProgressIndicator());
-                }
-                return GestureDetector(
-                  onTap: () {
-                    Navigator.push(
-                      context, 
-                      MaterialPageRoute(
-                        builder: (context) => DeviceDetailScreen(device: device)
-                      )
-                    );
-                  },
-                  child: Card(
-                    margin: const EdgeInsets.symmetric(vertical: 10),
-                    child: ListTile(
-                      title: Text(device['name']),
-                      subtitle: Text(device['category']),
-                      trailing: device['image'] != null ? Image.memory(base64Decode(device['image'])) : null,
-                    ),
-                  )
-                );
-              }))
+            const SizedBox(height: 40),
+            const Text("Jouw toestellen", style: TextStyle(fontSize: 20)),
+            const SizedBox(height: 20),
+            Expanded(
+              child: SingleChildScrollView(
+                child: Wrap(
+                  children: userDevices.isEmpty
+                      ? [const Center(child: CircularProgressIndicator())]
+                      : userDevices.map<Widget>((device) {
+                          return GestureDetector(
+                            onTap: () {
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (context) => DeviceDetailScreen(device: device),
+                                ),
+                              );
+                            },
+                            child: Card(
+                              margin: const EdgeInsets.symmetric(vertical: 10),
+                              child: ListTile(
+                                title: Text(device['name']),
+                                subtitle: Text(device['category']),
+                                trailing: device['image'] != null
+                                    ? Image.memory(base64Decode(device['image']))
+                                    : null,
+                              ),
+                            ),
+                          );
+                        }).toList(),
+                ),
+              ),
+            ),
           ],
         ),
       ),
     );
   }
 }
-

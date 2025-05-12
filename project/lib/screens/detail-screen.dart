@@ -70,7 +70,7 @@ class DeviceDetailScreen extends StatelessWidget {
                   ),
                   const SizedBox(height: 16),
                   Text(
-                    'Beschrijving: ${device['description']}' ?? '',
+                    'Beschrijving: ${device['description']}',
                     style: const TextStyle(fontSize: 16),
                   ),
                   const SizedBox(height: 16),
@@ -88,6 +88,7 @@ class DeviceDetailScreen extends StatelessWidget {
                   const SizedBox(height: 16,),
                   ElevatedButton(
                     onPressed: () {
+                      print(device["name"]);
                       Navigator.push(context, MaterialPageRoute(builder: (context) => ReserveDeviceScreen(device: device,)));
                     }, 
                     child: Text("Reserveer")

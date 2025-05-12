@@ -49,7 +49,6 @@ Future<void> getFilteredDevices() async {
     if (!mounted) return;
 
     List<Map<String, dynamic>> devices = querySnapshot.docs.map((doc) {
-      
       final data = doc.data() as Map<String, dynamic>;
       data['id']=doc.id;
       return data;
