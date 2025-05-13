@@ -6,6 +6,8 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:project/screens/add-device-screen.dart';
 import 'package:project/screens/auth-screen.dart';
 import 'package:project/screens/detail-screen.dart';
+import 'package:project/screens/renting-management-screen.dart';
+import 'package:project/screens/reservation-management-screen.dart';
 
 class ProfileScreen extends StatefulWidget {
   const ProfileScreen({super.key});
@@ -31,7 +33,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
     setState(() {
       userDevices = querySnapshot.docs.map((doc) {
-        final data = doc.data() as Map<String, dynamic>;
+        final data = doc.data();
         data['id'] = doc.id;
         return data;
       }).toList();
@@ -86,15 +88,12 @@ class _ProfileScreenState extends State<ProfileScreen> {
             const SizedBox(height: 10),
             ElevatedButton.icon(
               onPressed: () {
-                // TODO: Add verhuurderbeheer logic
-              },
-              icon: const Icon(Icons.manage_accounts),
-              label: const Text("Verhuurderbeheer"),
-            ),
-            const SizedBox(height: 10),
-            ElevatedButton.icon(
-              onPressed: () {
-                // TODO: Add reserveringsbeheer logic
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => ReservationManagementScreen()
+                  )
+                );
               },
               icon: const Icon(Icons.calendar_today),
               label: const Text("Reserveringsbeheer"),

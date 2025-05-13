@@ -1,29 +1,55 @@
 import 'dart:convert';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
+import 'package:project/screens/renting-management-screen.dart';
 import 'dart:convert' as convert;
 
 import 'package:project/screens/reserve-device-screen.dart';
 
-class DeviceDetailScreen extends StatelessWidget {
+class DeviceDetailScreen extends StatefulWidget {
   final Map<String, dynamic> device;
 
-  const DeviceDetailScreen({super.key, required this.device});
+  DeviceDetailScreen({super.key, required this.device});
 
-    Future<String> getLocationString(lat, long) async {
-      var urlString =
-      'https://nominatim.openstreetmap.org/reverse?lat=${lat}&lon=${long}&format=json';
+  @override
+  DeviceDetailState createState() {
+    return DeviceDetailState();
+  }
+}
 
-      final dataUrl = Uri.parse(urlString);
-      final response = await http.get(dataUrl);
-      if (response.statusCode == 200) {
-        final jsonResponse = convert.jsonDecode(response.body);
-        return jsonResponse['display_name'];
-      } else {
-        return 'Error getting location';
-      }
+class DeviceDetailState extends State<DeviceDetailScreen> {
+  bool isOwner = false;
+  Future<void> checkOwner() async{
+    final user = FirebaseAuth.instance.currentUser;
+    if (user == null) return;
+
+    final userId = user.uid;
+    if (widget.device["user"] == userId) {
+      setState(() {
+        isOwner = true;
+      });
     }
+  }
 
+  Future<String> getLocationString(lat, long) async {
+    var urlString =
+    'https://nominatim.openstreetmap.org/reverse?lat=${lat}&lon=${long}&format=json';
+
+    final dataUrl = Uri.parse(urlString);
+    final response = await http.get(dataUrl);
+    if (response.statusCode == 200) {
+      final jsonResponse = convert.jsonDecode(response.body);
+      return jsonResponse['display_name'];
+    } else {
+      return 'Error getting location';
+    }
+  }
+  @override 
+  void initState() {
+    super.initState();
+    checkOwner();
+  }
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -39,60 +65,66 @@ class DeviceDetailScreen extends StatelessWidget {
                     context,
                     MaterialPageRoute(
                       builder: (context) => FullScreenImageScreen(
-                        imageData: device['image'],
+                        imageData: widget.device['image'],
                       ),
                     ),
                   );
                 },
                 child: Hero(
-                  tag: device['name'],
+                  tag: widget.device['name'],
                   child: Image.memory(
-                    base64Decode(device['image']),
+                    base64Decode(widget.device['image']),
                     fit: BoxFit.cover,
                     width: 600,
                     height: double.infinity,
                   ),
                 ),
               ),
-            const SizedBox(width: 16),
+            const SizedBox(width: 32),
             Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    'Naam: ${device['name']}',
+                    'Naam: ${widget.device['name']}',
                     style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
                   ),
                   const SizedBox(height: 8),
                   Text(
-                    'Categorie: ${device['category']}',
+                    'Categorie: ${widget.device['category']}',
                     style: const TextStyle(fontSize: 16, color: Colors.grey),
                   ),
                   const SizedBox(height: 16),
                   Text(
-                    'Beschrijving: ${device['description']}',
+                    'Beschrijving: ${widget.device['description']}',
                     style: const TextStyle(fontSize: 16),
                   ),
                   const SizedBox(height: 16),
                   Text(
-                    'Prijs: €${device['price'].toString()}',
+                    'Prijs: €${widget.device['price'].toString()}',
                     style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
                   ),
                   const SizedBox(height: 16),
                   FutureBuilder<String>(
-                    future: getLocationString(device['lat'], device['long']),
+                    future: getLocationString(widget.device['lat'], widget.device['long']),
                     builder: (context, snapshot) {
                       return Text( "Locatie: ${snapshot.data}", style: const TextStyle(fontSize: 18));
                     },
                   ),
                   const SizedBox(height: 16,),
-                  ElevatedButton(
-                    onPressed: () {
-                      print(device["name"]);
-                      Navigator.push(context, MaterialPageRoute(builder: (context) => ReserveDeviceScreen(device: device,)));
-                    }, 
-                    child: Text("Reserveer")
-                  )
+                  isOwner ?
+                    ElevatedButton(
+                      onPressed: () {
+                        Navigator.push(context, MaterialPageRoute(builder: (context) => RentingManagementScreen()));
+                      }, 
+                      child: Text("Verhuurderbeheer")
+                    )
+                  : ElevatedButton(
+                      onPressed: () {
+                        Navigator.push(context, MaterialPageRoute(builder: (context) => ReserveDeviceScreen(device: widget.device,)));
+                      }, 
+                      child: Text("Reserveer")
+                    )
                 ],
               ),
             )
@@ -102,6 +134,7 @@ class DeviceDetailScreen extends StatelessWidget {
     );
   }
 }
+
 class FullScreenImageScreen extends StatelessWidget {
   final String imageData;
 
