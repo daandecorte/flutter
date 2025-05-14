@@ -27,6 +27,7 @@ class _HomeScreenState extends State<HomeScreen> {
   bool isLoading = true;
   String filter = "Alle";
   LatLng? selectedLocation;
+  String? selectedAddress;
   bool sortByDistance = false;
 
   Future<void> getFilteredDevices() async {
@@ -128,91 +129,98 @@ void changeFilter(newFilter) {
         padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
         child: Column(
           children: [
-            Row(
-                children: [
-                    const Text("Filter: ", style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold),),
-                    const SizedBox(width: 5,),
-                    DropdownButton<String>(
-                    value: filter,
-                    onChanged: (String? newFilter) {
-                        if (newFilter != null) {
-                        changeFilter(newFilter);
-                        }
-                    },
-                    items: const [
-                        DropdownMenuItem(value: "Alle", child: Text("Alle")),
-                        DropdownMenuItem(value: "Keuken", child: Text("Keuken")),
-                        DropdownMenuItem(value: "Poetsen", child: Text("Poetsen")),
-                        DropdownMenuItem(value: "Tuin", child: Text("Tuin")),
-                    ],
-                    ),
-                    const SizedBox(width: 10,),
-                    ElevatedButton.icon(
-                      onPressed: () async {
-                        final result = await Navigator.push<Map<String, dynamic>>(
-                          context,
-                          MaterialPageRoute(builder: (context) => const MapScreen()),
-                        );
-                        
-                        if (result != null) {
-                          setState(() {
-                            selectedLocation = result['location'] as LatLng;
-                          });
-                          getFilteredDevices();
-                        }
-                      },
-                      icon: const Icon(Icons.map, size: 30),
-                      style: TextButton.styleFrom(foregroundColor: Colors.black),
-                      label: const Text(
-                        "Selecteer uw locatie",
-                        style: TextStyle(
-                          fontSize: 15,
-                          fontWeight: FontWeight.bold,
-                          color: Colors.black
+            Container(
+              width: double.infinity,
+              child: Wrap(
+                spacing: 10,
+                runSpacing: 10,
+                crossAxisAlignment: WrapCrossAlignment.center,
+                  children: [
+                      const Text("Filter: ", style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold),),
+                      DropdownButton<String>(
+                        value: filter,
+                        onChanged: (String? newFilter) {
+                          if (newFilter != null) {
+                          changeFilter(newFilter);
+                          }
+                        },
+                        items: const [
+                          DropdownMenuItem(value: "Alle", child: Text("Alle")),
+                          DropdownMenuItem(value: "Keuken", child: Text("Keuken")),
+                          DropdownMenuItem(value: "Poetsen", child: Text("Poetsen")),
+                          DropdownMenuItem(value: "Tuin", child: Text("Tuin")),
+                        ],
+                      ),
+                      const SizedBox(width: 10,),
+                      ElevatedButton.icon(
+                        onPressed: () async {
+                          final result = await Navigator.push<Map<String, dynamic>>(
+                            context,
+                            MaterialPageRoute(builder: (context) => const MapScreen()),
+                          );
+                          
+                          if (result != null) {
+                            setState(() {
+                              selectedLocation = result['location'] as LatLng;
+                              selectedAddress = result['shortAddress'] as String;
+                            });
+                            getFilteredDevices();
+                          }
+                        },
+                        icon: const Icon(Icons.map, size: 30),
+                        style: TextButton.styleFrom(foregroundColor: Colors.black),
+                        label: const Text(
+                          "Selecteer uw locatie",
+                          style: TextStyle(
+                            fontSize: 15,
+                            fontWeight: FontWeight.bold,
+                            color: Colors.black
+                          ),
                         ),
                       ),
-                    ),
-                    // ElevatedButton(
-                    //   onPressed: (){
-                    //     Navigator.push(context, MaterialPageRoute(builder: (context) => DeviceMapScreen(devices: userDevices)));
-                    //   } ,
-                    //   child: Text("kaart")),
-                  const SizedBox(width: 10),
-                  if (selectedLocation != null)
-                    Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          "Locatie geselecteerd:",
-                          style: const TextStyle(fontSize: 12, fontWeight: FontWeight.bold,),
-                        ),
-                        Text(
-                          "Lat: ${selectedLocation!.latitude.toStringAsFixed(4)}, "
-                          "Lng: ${selectedLocation!.longitude.toStringAsFixed(4)}",
-                          style: const TextStyle(fontSize: 12),
-                        ),
-                      ],
-                    ),
-                    if(selectedLocation!=null) 
-                      Row(
+                      // ElevatedButton(
+                      //   onPressed: (){
+                      //     Navigator.push(context, MaterialPageRoute(builder: (context) => DeviceMapScreen(devices: userDevices)));
+                      //   } ,
+                      //   child: Text("kaart")),
+                    const SizedBox(width: 10),
+                    if (selectedLocation != null)
+                      Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                        const SizedBox(width: 10),
-                        const Text(
-                          "Sorteer op afstand: ",
-                          style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold),
-                        ),
-                        Switch(
-                          value: sortByDistance,
-                          onChanged: (bool value) {
-                            setState(() {
-                              sortByDistance = value;
-                            });
-                            getFilteredDevices(); 
-                          },
-                        ),
-                        ]
-                      )
-                ]
+                          Text(
+                            "Locatie geselecteerd:",
+                            style: const TextStyle(fontSize: 12, fontWeight: FontWeight.bold,),
+                          ),
+                          Text(
+                            selectedAddress!,
+                            style: const TextStyle(fontSize: 12),
+                          ),
+                        ],
+                      ),
+                      if(selectedLocation!=null) 
+                        Wrap(
+                          crossAxisAlignment: WrapCrossAlignment.center,
+                          children: [
+                          const SizedBox(width: 10),
+                          const Text(
+                            "Sorteer op afstand: ",
+                            style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold),
+                          ),
+                          Switch(
+                            value: sortByDistance,
+                            onChanged: (bool value) {
+                              setState(() {
+                                sortByDistance = value;
+                              });
+                              getFilteredDevices(); 
+                            },
+                          ),
+                          ]
+                        )
+                  ]
+
+              ),
 
             ),
             const SizedBox(height: 16),
@@ -236,6 +244,7 @@ void changeFilter(newFilter) {
                         },
                         child: Card(
                           margin: const EdgeInsets.symmetric(vertical: 10),
+                          elevation: 2,
                           child: Container(
                             width: 400,
                             padding: const EdgeInsets.all(8.0),
@@ -306,7 +315,6 @@ void changeFilter(newFilter) {
       )
     );
   }
-
   Widget _buildDeviceCard(Device device) {
     return Card(
       margin: const EdgeInsets.symmetric(vertical: 10),

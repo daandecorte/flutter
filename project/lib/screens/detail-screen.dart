@@ -34,117 +34,177 @@ class DeviceDetailState extends State<DeviceDetailScreen> {
     }
   }
 
-  Future<String> getLocationString(lat, long) async {
-    var urlString =
-    'https://nominatim.openstreetmap.org/reverse?lat=${lat}&lon=${long}&format=json';
-
-    final dataUrl = Uri.parse(urlString);
-    final response = await http.get(dataUrl);
-    if (response.statusCode == 200) {
-      final jsonResponse = convert.jsonDecode(response.body);
-      return jsonResponse['display_name'];
-    } else {
-      return 'Error getting location';
-    }
-  }
   @override 
   void initState() {
     super.initState();
     checkOwner();
   }
   @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: Text('Toestel Details'),
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.account_circle),
-            iconSize: 50,
-            onPressed: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(builder: (context) => const ProfileScreen()),
-              );
-            },
-          ),
-        ],
-      ),
-      body: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Row(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            GestureDetector(
-                onTap: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) => FullScreenImageScreen(
-                        imageData: widget.device.image,
+Widget build(BuildContext context) {
+  final screenWidth = MediaQuery.of(context).size.width;
+
+  final isSmallScreen = screenWidth < 970;
+
+  return Scaffold(
+    appBar: AppBar(
+      title: Text('Toestel Details'),
+      actions: [
+        IconButton(
+          icon: const Icon(Icons.account_circle),
+          iconSize: 50,
+          onPressed: () {
+            Navigator.push(
+              context,
+              MaterialPageRoute(builder: (context) => const ProfileScreen()),
+            );
+          },
+        ),
+      ],
+    ),
+    body: Column(
+      children: [
+        Expanded(
+          child: SingleChildScrollView(
+            padding: const EdgeInsets.all(16.0),
+            child: isSmallScreen
+                ? Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: _buildDetailContent(context, screenWidth),
+                  )
+                : Row(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Expanded(
+                        flex: 2,
+                        child: GestureDetector(
+                          onTap: () {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) => FullScreenImageScreen(
+                                  imageData: widget.device.image,
+                                ),
+                              ),
+                            );
+                          },
+                          child: Hero(
+                            tag: widget.device.name,
+                            child: Image.memory(
+                              base64Decode(widget.device.image),
+                              fit: BoxFit.cover,
+                              height: 750,
+                              width: double.infinity,
+                            ),
+                          ),
+                        ),
                       ),
-                    ),
-                  );
-                },
-                child: Hero(
-                  tag: widget.device.name,
-                  child: Image.memory(
-                    base64Decode(widget.device.image),
-                    fit: BoxFit.cover,
-                    width: 600,
-                    height: double.infinity,
+                      const SizedBox(width: 24),
+                      Expanded(
+                        flex: 3,
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: _buildDetailTexts(),
+                        ),
+                      ),
+                    ],
                   ),
+          ),
+        ),
+        Container(
+          width: double.infinity,
+          padding: const EdgeInsets.all(16),
+          child: isOwner
+              ? ElevatedButton.icon(
+                  onPressed: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => RentingManagementScreen(),
+                      ),
+                    );
+                  },
+                  style: ElevatedButton.styleFrom(minimumSize: const Size.fromHeight(50)),
+                  label: const Text("Beheer Apparaat"),
+                  icon: Icon(Icons.description),
+                )
+              : ElevatedButton.icon(
+                  onPressed: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => ReserveDeviceScreen(device: widget.device),
+                      ),
+                    );
+                  },
+                  style: ElevatedButton.styleFrom(minimumSize: const Size.fromHeight(50)),
+                  label: const Text("Reserveer"),
+                  icon: Icon(Icons.calendar_today)
                 ),
-              ),
-            const SizedBox(width: 32),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    'Naam: ${widget.device.name}',
-                    style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
-                  ),
-                  const Divider(),
-                  const SizedBox(height: 8),
-                  Text(
-                    'Categorie: ${widget.device.category}',
-                    style: const TextStyle(fontSize: 16, color: Colors.grey),
-                  ),
-                  const SizedBox(height: 16),
-                  Text(
-                    'Beschrijving: ${widget.device.description}',
-                    style: const TextStyle(fontSize: 16),
-                  ),
-                  const SizedBox(height: 16),
-                  Text(
-                    'Prijs: €${widget.device.price.toString()}',
-                    style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-                  ),
-                  const SizedBox(height: 16),
-                  Text( "Locatie: ${widget.device.locationStringFull}", style: const TextStyle(fontSize: 18)),
-                  const SizedBox(height: 16,),
-                  isOwner ?
-                    ElevatedButton(
-                      onPressed: () {
-                        Navigator.push(context, MaterialPageRoute(builder: (context) => RentingManagementScreen()));
-                      }, 
-                      child: Text("Beheer Apparaat")
-                    )
-                  : ElevatedButton(
-                      onPressed: () {
-                        Navigator.push(context, MaterialPageRoute(builder: (context) => ReserveDeviceScreen(device: widget.device,)));
-                      }, 
-                      child: Text("Reserveer")
-                    )
-                ],
-              ),
-            )
-          ],
-        )
+        ),
+      ],
+    ),
+  );
+}
+
+List<Widget> _buildDetailContent(BuildContext context, double screenWidth) {
+  return [
+    GestureDetector(
+      onTap: () {
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) =>
+                FullScreenImageScreen(imageData: widget.device.image),
+          ),
+        );
+      },
+      child: Hero(
+        tag: widget.device.name,
+        child: ClipRRect(
+          borderRadius: BorderRadius.circular(12),
+          child: Image.memory(
+            base64Decode(widget.device.image),
+            fit: BoxFit.cover,
+            width: screenWidth,
+            height: 500,
+          ),
+        ),
       ),
-    );
-  }
+    ),
+    const SizedBox(height: 24),
+    ..._buildDetailTexts(),
+  ];
+}
+
+List<Widget> _buildDetailTexts() {
+  return [
+    Text(
+      widget.device.name,
+      style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+    ),
+    const Divider(),
+    const SizedBox(height: 8),
+    Text(
+      'Categorie: ${widget.device.category}',
+      style: const TextStyle(fontSize: 16, color: Colors.grey),
+    ),
+    const SizedBox(height: 16),
+    Text(
+      'Beschrijving: ${widget.device.description}',
+      style: const TextStyle(fontSize: 16),
+    ),
+    const SizedBox(height: 16),
+    Text(
+      'Prijs: €${widget.device.price.toString()}/Dag',
+      style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+    ),
+    const SizedBox(height: 16),
+    Text(
+      "Locatie: ${widget.device.locationStringFull}",
+      style: const TextStyle(fontSize: 18),
+    ),
+  ];
+}
 }
 
 class FullScreenImageScreen extends StatelessWidget {

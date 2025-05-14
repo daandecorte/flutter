@@ -117,7 +117,7 @@ class MapState extends State<MapScreen> {
     ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: snackText));
 
     var urlString =
-        'https://nominatim.openstreetmap.org/reverse?lat=${lat}&lon=${long}&format=json';
+        'https://nominatim.openstreetmap.org/reverse?lat=${lat}&lon=${long}&format=json&accept-language=nl';
 
     final dataUrl = Uri.parse(urlString);
     final response = await http.get(dataUrl);

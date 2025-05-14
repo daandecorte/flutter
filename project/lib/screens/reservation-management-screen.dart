@@ -103,7 +103,7 @@ class _ReservationManagementScreenState extends State<ReservationManagementScree
 
                         return Card(
                           shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
-                          elevation: 3,
+                          elevation: 2,
                           margin: const EdgeInsets.symmetric(vertical: 8),
                           child: Padding(
                             padding: const EdgeInsets.all(16),
