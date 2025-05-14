@@ -10,6 +10,8 @@ class Device {
   final String user;
   final double lat;
   final double long;
+  final String locationStringFull;
+  final String locationStringShort;
 
   Device({
     required this.id,
@@ -20,7 +22,9 @@ class Device {
     required this.image,
     required this.user,
     required this.lat,
-    required this.long
+    required this.long,
+    required this.locationStringFull,
+    required this.locationStringShort
   });
 
   Map<String, dynamic> toMap() => {
@@ -31,7 +35,9 @@ class Device {
         'image': image,
         'user': user,
         'lat': lat,
-        'long': long
+        'long': long,
+        'locationStringFull': locationStringFull,
+        'locationStringShort': locationStringShort
       };
 
   factory Device.fromMap(String id, Map<String, dynamic> map) {
@@ -44,7 +50,9 @@ class Device {
       image: map['image'],
       user: map['user'],
       lat: map['lat'],
-      long: map['long']
+      long: map['long'],
+      locationStringFull: map['locationStringFull'],
+      locationStringShort: map['locationStringShort']
     );
   }
 }

@@ -92,13 +92,13 @@ class _ProfileScreenState extends State<ProfileScreen> {
               label: const Text("Mijn Reservaties"),
             ),
             const SizedBox(height: 40),
-            const Text("Jouw toestellen", style: TextStyle(fontSize: 20)),
+            const Text("Uw Toestellen", style: TextStyle(fontSize: 20)),
             const SizedBox(height: 20),
             Expanded(
               child: SingleChildScrollView(
                 child: Wrap(
                   children: userDevices.isEmpty
-                      ? [const Center(child: CircularProgressIndicator())]
+                      ? [const Center( child:  Text("U heeft nog geen toestellen toegevoegd."))]
                       : userDevices.map<Widget>((device) {
                           return GestureDetector(
                             onTap: () {

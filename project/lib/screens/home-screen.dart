@@ -22,70 +22,70 @@ class HomeScreen extends StatefulWidget {
 }
 class _HomeScreenState extends State<HomeScreen> {
 
-    List<Device> userDevices = [];
+  List<Device> userDevices = [];
 
-    bool isLoading = true;
-    String filter = "Alle";
-    LatLng? selectedLocation;
-    bool sortByDistance = false;
+  bool isLoading = true;
+  String filter = "Alle";
+  LatLng? selectedLocation;
+  bool sortByDistance = false;
 
-Future<void> getFilteredDevices() async {
-  if (!mounted) return;
-  setState(() {
-    isLoading = true;
-  });
-  
-  try {
-    QuerySnapshot querySnapshot;
-    if (filter == "Alle") {
-      querySnapshot = await FirebaseFirestore.instance
-          .collection('devices')
-          .get();
-    } else {
-      querySnapshot = await FirebaseFirestore.instance
-          .collection('devices')
-          .where('category', isEqualTo: filter)
-          .get();
-    }
-
+  Future<void> getFilteredDevices() async {
     if (!mounted) return;
+    setState(() {
+      isLoading = true;
+    });
+    
+    try {
+      QuerySnapshot querySnapshot;
+      if (filter == "Alle") {
+        querySnapshot = await FirebaseFirestore.instance
+            .collection('devices')
+            .get();
+      } else {
+        querySnapshot = await FirebaseFirestore.instance
+            .collection('devices')
+            .where('category', isEqualTo: filter)
+            .get();
+      }
 
-    List<Device> devices = querySnapshot.docs.map((doc) {
-      final data = doc.data() as Map<String, dynamic>;
-      return Device.fromMap(doc.id, data);
-    }).toList();
+      if (!mounted) return;
 
-    if (selectedLocation != null && sortByDistance) {
-      devices.sort((a, b) {
-        double distanceA = calculateDistance(
-          selectedLocation!.latitude, 
-          selectedLocation!.longitude, 
-          a.lat, 
-          a.long
-        );
-        double distanceB = calculateDistance(
-          selectedLocation!.latitude, 
-          selectedLocation!.longitude, 
-          b.lat, 
-          b.long
-        );
-        return distanceA.compareTo(distanceB);
+      List<Device> devices = querySnapshot.docs.map((doc) {
+        final data = doc.data() as Map<String, dynamic>;
+        return Device.fromMap(doc.id, data);
+      }).toList();
+
+      if (selectedLocation != null && sortByDistance) {
+        devices.sort((a, b) {
+          double distanceA = calculateDistance(
+            selectedLocation!.latitude, 
+            selectedLocation!.longitude, 
+            a.lat, 
+            a.long
+          );
+          double distanceB = calculateDistance(
+            selectedLocation!.latitude, 
+            selectedLocation!.longitude, 
+            b.lat, 
+            b.long
+          );
+          return distanceA.compareTo(distanceB);
+        });
+      }
+
+      setState(() {
+        userDevices = devices;
+        isLoading = false;
+      });
+
+    } catch (e) {
+      print("Error fetching devices: $e");
+      if (!mounted) return;
+      setState(() {
+        isLoading = false;
       });
     }
-
-    setState(() {
-      userDevices = devices;
-      isLoading = false;
-    });
-
-  } catch (e) {
-    print("Error fetching devices: $e");
-    if (!mounted) return;
-    setState(() {
-      isLoading = false;
-    });
   }
-}
 
 void changeFilter(newFilter) {
   setState(() {
@@ -98,20 +98,6 @@ void changeFilter(newFilter) {
   double calculateDistance(double lat1, double lon1, double lat2, double lon2) {
     var distance = Distance();
     return distance.as(LengthUnit.Kilometer, LatLng(lat1, lon1), LatLng(lat2, lon2));
-  }
-  Future<String> getLocationString(lat, long) async {
-  var urlString =
-  'https://nominatim.openstreetmap.org/reverse?lat=${lat}&lon=${long}&format=json';
-
-  final dataUrl = Uri.parse(urlString);
-  final response = await http.get(dataUrl);
-    if (response.statusCode == 200) {
-      final jsonResponse = convert.jsonDecode(response.body);
-      print(jsonResponse['address']);
-      return "${jsonResponse['address']['town'] ?? ''}${jsonResponse['address']['city'] ?? ''} ${jsonResponse['address']['postcode'] ?? ''} ${jsonResponse['address']['country'] ?? ''}";
-    } else {
-      return 'Error getting location';
-    }
   }
   @override
   void initState() {
@@ -289,17 +275,7 @@ void changeFilter(newFilter) {
                                     ).toStringAsFixed(2)} km",
                                   )
                                 else 
-                                  FutureBuilder<String>(
-                                    future: getLocationString(device.lat, device.long), 
-                                    builder: (context, snapshot) {
-                                      if(snapshot.data!=null) {
-                                        return Text("Locatie: ${snapshot.data}");
-                                      }
-                                      else {
-                                        return Text("Locatie: ${device.lat}, ${device.long}");
-                                      }                                    
-                                    }
-                                  )
+                                  Text(device.locationStringShort)
                               ],
                             ),
                           ),
@@ -312,7 +288,7 @@ void changeFilter(newFilter) {
           ],
         ),
       ),
-                  Positioned(
+            Positioned(
               right: 20,
               bottom: 20,
               child: FloatingActionButton(

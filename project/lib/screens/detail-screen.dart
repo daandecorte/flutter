@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:project/models/device.dart';
 import 'package:project/screens/renting-management-screen.dart';
+import 'profile-screen.dart';
 import 'dart:convert' as convert;
 
 import 'package:project/screens/reserve-device-screen.dart';
@@ -54,7 +55,21 @@ class DeviceDetailState extends State<DeviceDetailScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: Text('Toestel Details')),
+      appBar: AppBar(
+        title: Text('Toestel Details'),
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.account_circle),
+            iconSize: 50,
+            onPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => const ProfileScreen()),
+              );
+            },
+          ),
+        ],
+      ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
         child: Row(
@@ -107,12 +122,7 @@ class DeviceDetailState extends State<DeviceDetailScreen> {
                     style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
                   ),
                   const SizedBox(height: 16),
-                  FutureBuilder<String>(
-                    future: getLocationString(widget.device.lat, widget.device.long),
-                    builder: (context, snapshot) {
-                      return Text( "Locatie: ${snapshot.data}", style: const TextStyle(fontSize: 18));
-                    },
-                  ),
+                  Text( "Locatie: ${widget.device.locationStringFull}", style: const TextStyle(fontSize: 18)),
                   const SizedBox(height: 16,),
                   isOwner ?
                     ElevatedButton(

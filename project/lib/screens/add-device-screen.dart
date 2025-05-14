@@ -27,6 +27,7 @@ class AddDeviceState extends State<AddDevice> {
   Uint8List? selectedImage;
   LatLng? selectedLocation;
   String? selectedAddress;
+  String? shortAddress;
 
 Future<void> changeCategory(String category) async {
   setState(() {
@@ -94,7 +95,9 @@ Future<void> pickImage() async {
       image: base64Image,
       user: userId,
       lat: selectedLocation?.latitude ?? 0,
-      long: selectedLocation?.longitude ?? 0
+      long: selectedLocation?.longitude ?? 0,
+      locationStringFull: selectedAddress ?? "",
+      locationStringShort: shortAddress ?? "",
     );
 
     await FirebaseFirestore.instance.collection('devices').add(device.toMap());
@@ -152,6 +155,7 @@ Future<void> pickImage() async {
                       setState(() {
                         selectedLocation = result['location'] as LatLng;
                         selectedAddress = result['address'] as String;
+                        shortAddress = result['shortAddress'] as String;
                       });
                     }
                   },

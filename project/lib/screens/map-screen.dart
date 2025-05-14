@@ -15,6 +15,7 @@ class MapState extends State<MapScreen> {
   final MapController _mapController = MapController();
   double _currentZoom = 14.0;
   String _appBarTitle = 'Klik ergens of zoek uw locatie.';
+  String shortAddress = '';
   final LatLng _initialCenter = LatLng(51.23016715, 4.4161294643975015);
 
   LatLng? _selectedLocation;
@@ -125,6 +126,7 @@ class MapState extends State<MapScreen> {
       final jsonResponse = convert.jsonDecode(response.body);
       setState(() {
         _appBarTitle = jsonResponse['display_name'];
+        shortAddress = "${jsonResponse['address']['town'] ?? ''}${jsonResponse['address']['city'] ?? ''} ${jsonResponse['address']['postcode'] ?? ''} ${jsonResponse['address']['country'] ?? ''}";
       });
     }
   }
@@ -134,6 +136,7 @@ class MapState extends State<MapScreen> {
       Navigator.pop(context, {
         'location': _selectedLocation,
         'address': _appBarTitle,
+        'shortAddress': shortAddress
       }); 
     }
   }
