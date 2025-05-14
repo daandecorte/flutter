@@ -1,6 +1,9 @@
+import 'dart:convert';
+
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:project/models/reservation.dart';
 
 class ReservationManagementScreen extends StatefulWidget {
   const ReservationManagementScreen({super.key});
@@ -10,7 +13,7 @@ class ReservationManagementScreen extends StatefulWidget {
   }
 }
 class ReservationManagementState extends State<ReservationManagementScreen> {
-  List<Map<String, dynamic>> userReservations = [];
+  List<Reservation> userReservations = [];
   Future<void> getUserReservations() async {
     final user = FirebaseAuth.instance.currentUser;
     if (user == null) return;
@@ -25,8 +28,7 @@ class ReservationManagementState extends State<ReservationManagementScreen> {
     setState(() {
       userReservations = querySnapshot.docs.map((doc) {
         final data = doc.data();
-        data['id'] = doc.id;
-        return data;
+        return Reservation.fromMap(doc.id, data);
       }).toList();
     });
   }
@@ -34,11 +36,34 @@ class ReservationManagementState extends State<ReservationManagementScreen> {
   void initState() {
     super.initState();
     getUserReservations();
-    print(userReservations.length);
   }
-  @override
-  Widget build(BuildContext context) {
-    int counter = 0;
-    return Text("hey");
+@override
+Widget build(BuildContext context) {
+  if (userReservations.isEmpty) {
+    return const Center(
+      child: CircularProgressIndicator(),
+    );
   }
+
+  return Scaffold(
+    appBar: AppBar(title: Text("Mijn Reservaties"),),
+    body: Expanded(
+    child: SingleChildScrollView(
+      child: Wrap(
+        spacing: 10,
+        runSpacing: 10,
+        children: userReservations.map<Widget>((reservation) {
+          return Card(
+            margin: const EdgeInsets.symmetric(vertical: 10),
+            child: ListTile(
+              title: Text(reservation.userId),
+              subtitle: Text(reservation.deviceId),
+            ),
+          );
+        }).toList(),
+      ),
+    ),
+  ),
+  );
+}
 }

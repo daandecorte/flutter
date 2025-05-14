@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:project/models/device.dart';
 import 'package:project/screens/add-device-screen.dart';
 import 'package:project/screens/auth-screen.dart';
 import 'package:project/screens/detail-screen.dart';
@@ -18,7 +19,7 @@ class ProfileScreen extends StatefulWidget {
 
 class _ProfileScreenState extends State<ProfileScreen> {
 
-  List<Map<String, dynamic>> userDevices = [];
+  List<Device> userDevices = [];
 
   Future<void> getUserDevices() async {
     final user = FirebaseAuth.instance.currentUser;
@@ -34,8 +35,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
     setState(() {
       userDevices = querySnapshot.docs.map((doc) {
         final data = doc.data();
-        data['id'] = doc.id;
-        return data;
+        return Device.fromMap(doc.id, data);
       }).toList();
     });
   }
@@ -51,19 +51,12 @@ class _ProfileScreenState extends State<ProfileScreen> {
     return Scaffold(
       appBar: AppBar(
         title: const Text("Profiel"),
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.add),
-            onPressed: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(builder: (context) => const AddDevice()),
-              );
-            },
-          ),
-        ],
       ),
-      body: Padding(
+      body: Stack(
+        children: [
+
+      
+      Padding(
         padding: const EdgeInsets.all(16.0),
         child: Column(
           children: [
@@ -96,7 +89,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 );
               },
               icon: const Icon(Icons.calendar_today),
-              label: const Text("Reserveringsbeheer"),
+              label: const Text("Mijn Reservaties"),
             ),
             const SizedBox(height: 40),
             const Text("Jouw toestellen", style: TextStyle(fontSize: 20)),
@@ -119,10 +112,10 @@ class _ProfileScreenState extends State<ProfileScreen> {
                             child: Card(
                               margin: const EdgeInsets.symmetric(vertical: 10),
                               child: ListTile(
-                                title: Text(device['name']),
-                                subtitle: Text(device['category']),
-                                trailing: device['image'] != null
-                                    ? Image.memory(base64Decode(device['image']))
+                                title: Text(device.name),
+                                subtitle: Text(device.category),
+                                trailing: device.image != null
+                                    ? Image.memory(base64Decode(device.image))
                                     : null,
                               ),
                             ),
@@ -134,6 +127,22 @@ class _ProfileScreenState extends State<ProfileScreen> {
           ],
         ),
       ),
+            Positioned(
+              right: 20,
+              bottom: 20,
+              child: FloatingActionButton(
+                heroTag: 'zoom_in',
+                onPressed: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (context) => AddDevice())
+                  );
+                },
+                child: Icon(Icons.add),
+              ),
+            )
+        ],
+      )
     );
   }
 }

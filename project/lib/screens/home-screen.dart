@@ -4,6 +4,8 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:latlong2/latlong.dart';
+import 'package:project/models/device.dart';
+import 'package:project/screens/add-device-screen.dart';
 import 'package:project/screens/auth-screen.dart';
 import 'package:project/screens/detail-screen.dart';
 import 'package:project/screens/device-map-screen.dart';
@@ -20,7 +22,7 @@ class HomeScreen extends StatefulWidget {
 }
 class _HomeScreenState extends State<HomeScreen> {
 
-    List<Map<String, dynamic>> userDevices = [];
+    List<Device> userDevices = [];
 
     bool isLoading = true;
     String filter = "Alle";
@@ -48,10 +50,9 @@ Future<void> getFilteredDevices() async {
 
     if (!mounted) return;
 
-    List<Map<String, dynamic>> devices = querySnapshot.docs.map((doc) {
+    List<Device> devices = querySnapshot.docs.map((doc) {
       final data = doc.data() as Map<String, dynamic>;
-      data['id']=doc.id;
-      return data;
+      return Device.fromMap(doc.id, data);
     }).toList();
 
     if (selectedLocation != null && sortByDistance) {
@@ -59,14 +60,14 @@ Future<void> getFilteredDevices() async {
         double distanceA = calculateDistance(
           selectedLocation!.latitude, 
           selectedLocation!.longitude, 
-          a["lat"], 
-          a["long"]
+          a.lat, 
+          a.long
         );
         double distanceB = calculateDistance(
           selectedLocation!.latitude, 
           selectedLocation!.longitude, 
-          b["lat"], 
-          b["long"]
+          b.lat, 
+          b.long
         );
         return distanceA.compareTo(distanceB);
       });
@@ -135,7 +136,9 @@ void changeFilter(newFilter) {
           ),
         ],
       ),
-      body: Padding(
+      body: Stack(
+        children: [
+      Padding(
         padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
         child: Column(
           children: [
@@ -253,9 +256,9 @@ void changeFilter(newFilter) {
                             child: Column(
                               crossAxisAlignment: CrossAxisAlignment.center,
                               children: [
-                                device['image'] != null
+                                device.image != null
                                     ? Image.memory(
-                                        base64Decode(device['image']),
+                                        base64Decode(device.image),
                                         height: 200,
                                       )
                                     : Container(
@@ -264,7 +267,7 @@ void changeFilter(newFilter) {
                                       ),
                                 const SizedBox(height: 8),
                                 Text(
-                                  "${device['name']} €${device['price']}",
+                                  "${device.name} €${device.price}",
                                   style: const TextStyle(
                                     fontSize: 18,
                                     fontWeight: FontWeight.bold,
@@ -272,7 +275,7 @@ void changeFilter(newFilter) {
                                 ),
                                 const SizedBox(height: 4),
                                 Text(
-                                  device['category'],
+                                  device.category,
                                   style: const TextStyle(fontSize: 14, color: Colors.grey),
                                 ),
                                 const SizedBox(height: 4),
@@ -281,19 +284,19 @@ void changeFilter(newFilter) {
                                     "Afstand: ${calculateDistance(
                                       selectedLocation?.latitude ?? 0,
                                       selectedLocation?.longitude ?? 0,
-                                      device['lat'],
-                                      device['long'],
+                                      device.lat,
+                                      device.long,
                                     ).toStringAsFixed(2)} km",
                                   )
                                 else 
                                   FutureBuilder<String>(
-                                    future: getLocationString(device['lat'], device['long']), 
+                                    future: getLocationString(device.lat, device.long), 
                                     builder: (context, snapshot) {
                                       if(snapshot.data!=null) {
                                         return Text("Locatie: ${snapshot.data}");
                                       }
                                       else {
-                                        return Text("Locatie: ${device['lat']}, ${device['long']}");
+                                        return Text("Locatie: ${device.lat}, ${device.long}");
                                       }                                    
                                     }
                                   )
@@ -309,18 +312,34 @@ void changeFilter(newFilter) {
           ],
         ),
       ),
+                  Positioned(
+              right: 20,
+              bottom: 20,
+              child: FloatingActionButton(
+                heroTag: 'zoom_in',
+                onPressed: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (context) => AddDevice())
+                  );
+                },
+                child: Icon(Icons.add),
+              ),
+            )
+        ]
+      )
     );
   }
 
-  Widget _buildDeviceCard(Map<String, dynamic> device) {
+  Widget _buildDeviceCard(Device device) {
     return Card(
       margin: const EdgeInsets.symmetric(vertical: 10),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          device['image'] != null
+          device.image != null
               ? Image.memory(
-                  base64Decode(device['image']),
+                  base64Decode(device.image),
                   fit: BoxFit.cover,
                   height: 150, 
                   width: double.infinity,
@@ -329,14 +348,14 @@ void changeFilter(newFilter) {
           Padding(
             padding: const EdgeInsets.all(8.0),
             child: Text(
-              device['name'],
+              device.name,
               style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
             ),
           ),
           Padding(
             padding: const EdgeInsets.all(8.0),
             child: Text(
-              device['category'],
+              device.category,
               style: const TextStyle(fontSize: 14),
             ),
           ),

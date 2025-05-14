@@ -2,13 +2,14 @@ import 'dart:convert';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
+import 'package:project/models/device.dart';
 import 'package:project/screens/renting-management-screen.dart';
 import 'dart:convert' as convert;
 
 import 'package:project/screens/reserve-device-screen.dart';
 
 class DeviceDetailScreen extends StatefulWidget {
-  final Map<String, dynamic> device;
+  final Device device;
 
   DeviceDetailScreen({super.key, required this.device});
 
@@ -25,7 +26,7 @@ class DeviceDetailState extends State<DeviceDetailScreen> {
     if (user == null) return;
 
     final userId = user.uid;
-    if (widget.device["user"] == userId) {
+    if (widget.device.user == userId) {
       setState(() {
         isOwner = true;
       });
@@ -65,15 +66,15 @@ class DeviceDetailState extends State<DeviceDetailScreen> {
                     context,
                     MaterialPageRoute(
                       builder: (context) => FullScreenImageScreen(
-                        imageData: widget.device['image'],
+                        imageData: widget.device.image,
                       ),
                     ),
                   );
                 },
                 child: Hero(
-                  tag: widget.device['name'],
+                  tag: widget.device.name,
                   child: Image.memory(
-                    base64Decode(widget.device['image']),
+                    base64Decode(widget.device.image),
                     fit: BoxFit.cover,
                     width: 600,
                     height: double.infinity,
@@ -86,27 +87,28 @@ class DeviceDetailState extends State<DeviceDetailScreen> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    'Naam: ${widget.device['name']}',
+                    'Naam: ${widget.device.name}',
                     style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
                   ),
+                  const Divider(),
                   const SizedBox(height: 8),
                   Text(
-                    'Categorie: ${widget.device['category']}',
+                    'Categorie: ${widget.device.category}',
                     style: const TextStyle(fontSize: 16, color: Colors.grey),
                   ),
                   const SizedBox(height: 16),
                   Text(
-                    'Beschrijving: ${widget.device['description']}',
+                    'Beschrijving: ${widget.device.description}',
                     style: const TextStyle(fontSize: 16),
                   ),
                   const SizedBox(height: 16),
                   Text(
-                    'Prijs: €${widget.device['price'].toString()}',
+                    'Prijs: €${widget.device.price.toString()}',
                     style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
                   ),
                   const SizedBox(height: 16),
                   FutureBuilder<String>(
-                    future: getLocationString(widget.device['lat'], widget.device['long']),
+                    future: getLocationString(widget.device.lat, widget.device.long),
                     builder: (context, snapshot) {
                       return Text( "Locatie: ${snapshot.data}", style: const TextStyle(fontSize: 18));
                     },
@@ -117,7 +119,7 @@ class DeviceDetailState extends State<DeviceDetailScreen> {
                       onPressed: () {
                         Navigator.push(context, MaterialPageRoute(builder: (context) => RentingManagementScreen()));
                       }, 
-                      child: Text("Verhuurderbeheer")
+                      child: Text("Beheer Apparaat")
                     )
                   : ElevatedButton(
                       onPressed: () {

@@ -7,7 +7,7 @@ import 'package:project/models/reservation.dart';
 import 'package:table_calendar/table_calendar.dart';
 
 class ReserveDeviceScreen extends StatefulWidget {
-  final Map<String, dynamic> device;
+  final Device device;
 
   const ReserveDeviceScreen({required this.device});
 
@@ -30,12 +30,12 @@ class _ReserveDeviceScreenState extends State<ReserveDeviceScreen> {
   Future<void> loadReservations() async {
     final snapshot = await FirebaseFirestore.instance
         .collection('reservations')
-        .where('deviceId', isEqualTo: widget.device['id'])
+        .where('deviceId', isEqualTo: widget.device.id)
         .get();
 
     setState(() {
       reservations = snapshot.docs.map((doc) {
-        return Reservation.fromMap(doc.id, doc.data() as Map<String, dynamic>);
+        return Reservation.fromMap(doc.id, doc.data());
       }).toList();
     });
   }
@@ -105,7 +105,7 @@ class _ReserveDeviceScreenState extends State<ReserveDeviceScreen> {
 
     final reservation = Reservation(
       id: '',
-      deviceId: widget.device["id"],
+      deviceId: widget.device.id,
       userId: user.uid,
       startTime: selectedStart!,
       endTime: selectedEnd!,
@@ -129,7 +129,7 @@ class _ReserveDeviceScreenState extends State<ReserveDeviceScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: Text('Reserveer Apparaat: ${widget.device['name']}, €${widget.device['price']}/Dag')),
+      appBar: AppBar(title: Text('Reserveer Apparaat: ${widget.device.name}, €${widget.device.price}/Dag')),
       body: Column(
         children: [
           TableCalendar(
@@ -237,7 +237,7 @@ class _ReserveDeviceScreenState extends State<ReserveDeviceScreen> {
       return SizedBox();
     }
     final days = selectedEnd!.difference(selectedStart!).inDays+1;
-    final totalPrice = days*widget.device['price'];
+    final totalPrice = days*widget.device.price;
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 12),
       child: Column(

@@ -74,7 +74,7 @@ class MapState extends State<MapScreen> {
           ),
           Positioned(
             right: 10,
-            bottom: 100,
+            bottom: 10,
             child: Column(
               children: [
                 FloatingActionButton(

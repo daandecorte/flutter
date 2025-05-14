@@ -1,10 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:latlong2/latlong.dart';
+import 'package:project/models/device.dart';
 import 'package:project/screens/detail-screen.dart'; 
 
 class DeviceMapScreen extends StatelessWidget {
-  final List<Map<String, dynamic>> devices;
+  final List<Device> devices;
 
   const DeviceMapScreen({super.key, required this.devices});
 
@@ -24,8 +25,8 @@ class DeviceMapScreen extends StatelessWidget {
           ),
           MarkerLayer(
             markers: devices.map((device) {
-              double lat = device['lat'];
-              double long = device['long'];
+              double lat = device.lat;
+              double long = device.long;
               return Marker(
                 width: 80.0,
                 height: 80.0,
