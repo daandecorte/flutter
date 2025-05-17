@@ -92,7 +92,7 @@ Widget build(BuildContext context) {
                             child: Image.memory(
                               base64Decode(widget.device.image),
                               fit: BoxFit.cover,
-                              height: 750,
+                              height: 600,
                               width: double.infinity,
                             ),
                           ),
@@ -119,7 +119,7 @@ Widget build(BuildContext context) {
                     Navigator.push(
                       context,
                       MaterialPageRoute(
-                        builder: (context) => RentingManagementScreen(),
+                        builder: (context) => RentingManagementScreen(device: widget.device),
                       ),
                     );
                   },

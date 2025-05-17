@@ -5,6 +5,7 @@ import 'package:intl/intl.dart';
 import 'package:project/models/device.dart';
 import 'package:project/models/reservation.dart';
 import 'package:table_calendar/table_calendar.dart';
+import 'profile-screen.dart';
 
 class ReserveDeviceScreen extends StatefulWidget {
   final Device device;
@@ -129,7 +130,21 @@ class _ReserveDeviceScreenState extends State<ReserveDeviceScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: Text('Reserveer Apparaat: ${widget.device.name}, €${widget.device.price}/Dag')),
+      appBar: AppBar(
+        title: Text('Reserveer Apparaat: ${widget.device.name}, €${widget.device.price}/Dag'),
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.account_circle),
+            iconSize: 50,
+            onPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => const ProfileScreen()),
+              );
+            },
+          ),
+        ],
+      ),
       body: Column(
         children: [
           TableCalendar(
