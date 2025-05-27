@@ -195,7 +195,7 @@ List<Widget> _buildDetailTexts() {
     ),
     const SizedBox(height: 16),
     Text(
-      'Prijs: €${widget.device.price.toString()}/Dag',
+      'Prijs: €${widget.device.price.toStringAsFixed(2)}/Dag',
       style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
     ),
     const SizedBox(height: 16),

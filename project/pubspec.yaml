@@ -33,7 +33,7 @@ dependencies:
   cloud_firestore: ^4.13.2
   firebase_storage: ^11.6.6
   firebase_ui_auth: ^1.1.5
-  file_picker: ^6.1.1
+  file_picker: ^8.0.0
   flutter:
     sdk: flutter
 

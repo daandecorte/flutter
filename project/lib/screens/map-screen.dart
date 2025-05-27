@@ -126,7 +126,7 @@ class MapState extends State<MapScreen> {
       final jsonResponse = convert.jsonDecode(response.body);
       setState(() {
         _appBarTitle = jsonResponse['display_name'];
-        shortAddress = "${jsonResponse['address']['town'] ?? ''}${jsonResponse['address']['city'] ?? ''} ${jsonResponse['address']['postcode'] ?? ''} ${jsonResponse['address']['country'] ?? ''}";
+        shortAddress = "${jsonResponse['address']['town'] ?? ''} ${jsonResponse['address']['city'] ?? ''} ${jsonResponse['address']['postcode'] ?? ''} ${jsonResponse['address']['country'] ?? ''}";
       });
     }
   }

@@ -125,9 +125,10 @@ Future<void> pickImage() async {
             TextField(controller: descriptionController,decoration: const InputDecoration(labelText: "Beschrijving")),
             TextField(controller: priceController,decoration: const InputDecoration(labelText: "Prijs in €")),
             const SizedBox(height: 16),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.start,
-              crossAxisAlignment: CrossAxisAlignment.center,
+            Wrap(
+              runSpacing: 12, 
+              alignment: WrapAlignment.start, 
+              crossAxisAlignment: WrapCrossAlignment.center, 
               children: [
                 Text(
                   "Categorie:",

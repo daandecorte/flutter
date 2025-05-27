@@ -262,7 +262,7 @@ void changeFilter(newFilter) {
                                       ),
                                 const SizedBox(height: 8),
                                 Text(
-                                  "${device.name} €${device.price}",
+                                  "${device.name} €${device.price.toStringAsFixed(2)}",
                                   style: const TextStyle(
                                     fontSize: 18,
                                     fontWeight: FontWeight.bold,
